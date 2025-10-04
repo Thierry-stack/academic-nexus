@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/database';
 import SearchAnalytics from '@/models/SearchAnalytics';
 
+// Add this line to fix the dynamic server usage error
+export const dynamic = 'force-dynamic';
+
 // GET - Get search analytics (for librarians)
 export async function GET(request: NextRequest) {
   try {
@@ -68,7 +71,7 @@ export async function GET(request: NextRequest) {
       popularSearches,
       searchTrends,
       totalSearches,
-      period: `${days} days`
+      period: `${days} days'
     });
     
   } catch (error) {
