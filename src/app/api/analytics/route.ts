@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
       popularSearches,
       searchTrends,
       totalSearches,
-      period: `${days} days'
+      period: `${days} days`
     });
     
   } catch (error) {
