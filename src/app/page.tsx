@@ -14,7 +14,6 @@ export default function Home() {
                   alt="Academic Nexus Logo" 
                   className="h-10 w-10 object-contain"
                 />
-                <h1 style={{ color: 'red', fontSize: '50px', padding: '20px' }}>TEST - Should be big red text</h1>
                 <h1 className="text-2xl font-bold text-white">Academic Nexus</h1>
               </div>
             <div className="flex space-x-4">
