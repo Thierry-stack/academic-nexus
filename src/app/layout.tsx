@@ -22,11 +22,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-cover bg-center bg-fixed`} style={{ backgroundImage: 'url(/images/homebackground.png)' }}>
+      <body className={inter.className}>
         <AuthProvider>
-          <div className="min-h-screen bg-black bg-opacity-60 backdrop-blur-sm">
-            {children}
-          </div>
+          {children}
         </AuthProvider>
       </body>
     </html>

@@ -6,4 +6,4 @@ const nextConfig = {
   distDir: '.next', // default, safe
 };
 
-module.exports = nextConfig;
+export default nextConfig;
