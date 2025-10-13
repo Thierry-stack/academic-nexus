@@ -16,23 +16,22 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Find user - only allow librarians to login to librarian interface
-    const user = await User.findOne({ email, role: 'librarian' });
-    if (!user) {
+    // Only allow specific admin credentials
+    if (email !== 'admin@academic.com' || password !== 'admin123') {
       return NextResponse.json(
-        { error: 'Invalid credentials or unauthorized access' },
+        { error: 'Invalid credentials. Only authorized librarians can access this system.' },
         { status: 401 }
       );
     }
     
-    // Verify password
-    const isValidPassword = await verifyPassword(password, user.password);
-    if (!isValidPassword) {
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
-      );
-    }
+    // Create a mock user object for the admin
+    const user = {
+      _id: 'admin-user-id',
+      email: 'admin@academic.com',
+      name: 'Admin Librarian',
+      role: 'librarian',
+      password: 'hashed-password-placeholder' // Not used since we're checking plain text
+    };
     
     // Generate token
     const token = generateToken({

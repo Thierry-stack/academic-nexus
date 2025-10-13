@@ -31,11 +31,12 @@ export default function LibrarianLogin() {
         throw new Error('Please enter both email and password');
       }
       
-      // For demo purposes, we'll accept any non-empty credentials
-      // In a real app, you would validate against your backend
-      if (formData.email && formData.password) {
+      // Only allow specific admin credentials
+      if (formData.email === 'admin@academic.com' && formData.password === 'admin123') {
         await login(formData.email, formData.password);
         router.push('/librarian/dashboard');
+      } else {
+        throw new Error('Invalid credentials. Only authorized librarians can access this system.');
       }
     } catch (error) {
       console.error('Login error:', error);

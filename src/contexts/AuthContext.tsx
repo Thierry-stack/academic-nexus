@@ -44,31 +44,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (email: string, password: string): Promise<User> => {
     setIsLoading(true);
     try {
-      // In a real app, you would call your authentication API here
-      // For demo purposes, we'll just create a simple user object
-      // This is NOT secure for production - always validate credentials on the server
       if (!email || !password) {
         throw new Error('Email and password are required');
       }
       
-      // Simple validation - in a real app, this would be done on the server
-      if (!email.includes('@')) {
-        throw new Error('Please enter a valid email address');
+      // Only allow specific admin credentials
+      if (email === 'admin@academic.com' && password === 'admin123') {
+        const user = {
+          id: 'admin-user-id',
+          email: email,
+          name: 'Admin Librarian',
+          role: 'librarian' as const,
+        };
+        
+        setUser(user);
+        return user;
+      } else {
+        throw new Error('Invalid credentials. Only authorized librarians can access this system.');
       }
-      
-      if (password.length < 6) {
-        throw new Error('Password must be at least 6 characters');
-      }
-      
-      const user = {
-        id: `user-${Date.now()}`,
-        email: email,
-        name: email.split('@')[0],
-        role: 'librarian' as const,
-      };
-      
-      setUser(user);
-      return user;
     } catch (error) {
       console.error('Login error:', error);
       throw error;
