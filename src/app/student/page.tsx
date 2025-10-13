@@ -18,8 +18,7 @@ export default function StudentDashboard() {
         </p>
         
         {/* Search Bar */}
-       /* // In the StudentDashboard component, 
-        replace the search section with:*/
+     {/* In the StudentDashboard component, replace the search section with: */}
 <div className="max-w-2xl mx-auto">
   <div className="relative">
     <input
