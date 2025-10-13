@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { existsSync } from 'fs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +38,14 @@ export async function POST(request: NextRequest) {
     const timestamp = Date.now();
     const extension = path.extname(file.name);
     const filename = `book-cover-${timestamp}${extension}`;
-    const uploadPath = path.join(process.cwd(), 'public/uploads/book-covers', filename);
+    
+    // Ensure upload directory exists
+    const uploadDir = path.join(process.cwd(), 'public/uploads/book-covers');
+    if (!existsSync(uploadDir)) {
+      await mkdir(uploadDir, { recursive: true });
+    }
+    
+    const uploadPath = path.join(uploadDir, filename);
 
     // Save file
     await writeFile(uploadPath, buffer);
@@ -54,7 +62,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(
-      { error: 'Failed to upload file' },
+      { error: `Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}` },
       { status: 500 }
     );
   }

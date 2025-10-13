@@ -74,7 +74,7 @@ export default function BooksManagement() {
       }
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Failed to upload cover image');
+      alert(`Failed to upload cover image: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
@@ -116,7 +116,7 @@ export default function BooksManagement() {
       }
     } catch (error) {
       console.error('Error adding book:', error);
-      alert('Failed to add book');
+      alert(`Failed to add book: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
