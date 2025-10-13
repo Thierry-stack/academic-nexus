@@ -21,6 +21,7 @@ module.exports = {
           900: '#1e3a8a',
           950: '#172554',
         },
+        'academic-blue': '#2563eb',
         'academic-gold': '#fbbf24',
         'academic-navy': '#1e3a8a',
       },

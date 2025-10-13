@@ -173,9 +173,9 @@ export default function BooksManagement() {
         </div>
         <button
           onClick={() => setShowAddForm(true)}
-          className="bg-academic-blue text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 border-2 border-blue-700"
         >
-          Add New Book
+          + Add New Book
         </button>
       </div>
 
@@ -455,9 +455,9 @@ export default function BooksManagement() {
             <p className="text-gray-500 text-lg mb-4">No books in the library yet</p>
             <button
               onClick={() => setShowAddForm(true)}
-              className="bg-academic-blue text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 border-2 border-blue-700"
             >
-              Add Your First Book
+              + Add Your First Book
             </button>
           </div>
         ) : (
