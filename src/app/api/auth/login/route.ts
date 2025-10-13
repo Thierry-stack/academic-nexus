@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       }
     });
     
-    // Set HTTP-only cookie
+    // Set HTTP-only cookie for API compatibility
     response.cookies.set('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
