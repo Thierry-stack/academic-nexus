@@ -30,14 +30,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const checkAuthStatus = async () => {
     try {
-      // Check if user is already authenticated via localStorage
-      const savedUser = localStorage.getItem('librarian_user');
-      if (savedUser) {
-        const user = JSON.parse(savedUser);
-        // Verify it's the correct admin user
-        if (user.email === 'admin@academic.com' && user.role === 'librarian') {
-          setUser(user);
-          return;
+      // Check if localStorage is available (client-side only)
+      if (typeof window !== 'undefined') {
+        const savedUser = localStorage.getItem('librarian_user');
+        if (savedUser) {
+          const user = JSON.parse(savedUser);
+          // Verify it's the correct admin user
+          if (user.email === 'admin@academic.com' && user.role === 'librarian') {
+            setUser(user);
+            return;
+          }
         }
       }
       setUser(null);
@@ -65,8 +67,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           role: 'librarian' as const,
         };
         
-        // Save user to localStorage for persistence
-        localStorage.setItem('librarian_user', JSON.stringify(user));
+        // Save user to localStorage for persistence (client-side only)
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('librarian_user', JSON.stringify(user));
+        }
         
         setUser(user);
         return user;
@@ -105,8 +109,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Clear the user from state
       setUser(null);
       
-      // Clear stored user data
-      localStorage.removeItem('librarian_user');
+      // Clear stored user data (client-side only)
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('librarian_user');
+      }
       
       return true; // Indicate successful logout
     } catch (error) {

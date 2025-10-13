@@ -7,12 +7,24 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
   
-  // For production, we'll let the client-side handle authentication
-  // This prevents the middleware from blocking access due to cookie issues
+  // Protect all other librarian routes
   if (request.nextUrl.pathname.startsWith('/librarian')) {
-    // Allow all librarian routes to pass through
-    // Authentication will be handled by the AuthContext on the client side
-    return NextResponse.next();
+    // Check for both cookie-based auth and allow the client-side auth to handle localStorage
+    const authToken = request.cookies.get('auth_token')?.value;
+    
+    // If no auth token, let the client-side authentication handle the redirect
+    // This allows the AuthContext to check localStorage and redirect if needed
+    if (!authToken) {
+      return NextResponse.next();
+    }
+    
+    try {
+      if (!authToken || authToken === '') {
+        return NextResponse.next();
+      }
+    } catch (error) {
+      return NextResponse.next();
+    }
   }
   
   return NextResponse.next();

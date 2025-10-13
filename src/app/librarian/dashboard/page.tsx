@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface DashboardStats {
   totalBooks: number;
@@ -10,6 +11,7 @@ interface DashboardStats {
 }
 
 export default function LibrarianDashboard() {
+  const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -52,8 +54,12 @@ export default function LibrarianDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">Librarian Dashboard</h1>
-      <p className="text-gray-600 mb-8">Overview of library operations and statistics</p>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Welcome, {user?.name || 'Admin Librarian'}!
+        </h1>
+        <p className="text-gray-600">Overview of library operations and statistics</p>
+      </div>
 
       {/* Stats Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
