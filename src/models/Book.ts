@@ -23,7 +23,7 @@ const BookSchema = new mongoose.Schema({
   },
   coverImage: {
     type: String,
-    default: '/uploads/book-covers/default-cover.jpg',
+    default: 'https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg', // Default placeholder image
   },
   publicationDate: {
     type: Date,
