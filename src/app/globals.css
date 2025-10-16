@@ -2,8 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Hide the default chatling widget button only */
+/* Hide the default chatling widget button and prevent auto-opening */
 [data-chatling-widget] {
+  display: none !important;
+}
+
+/* Hide any chatling elements that might auto-trigger */
+.chtl-widget,
+iframe[src*="chatling"],
+[class*="chatling"] {
+  display: none !important;
+}
+
+/* Prevent any chatling auto-open behavior */
+*[data-chatling-auto-open],
+*[data-auto-open="true"] {
   display: none !important;
 }
 

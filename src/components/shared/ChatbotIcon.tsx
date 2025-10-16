@@ -15,7 +15,7 @@ export default function ChatbotIcon() {
   }, []);
 
   const openChatbot = () => {
-    // Simple approach - just trigger the chatbot directly
+    // Trigger the chatbot on click
     if (typeof window !== 'undefined') {
       // Method 1: Try to trigger via window object
       if ((window as any).chatling && typeof (window as any).chatling.open === 'function') {
@@ -23,37 +23,58 @@ export default function ChatbotIcon() {
         return;
       }
       
-      // Method 2: Look for the chatbot widget and click it
-      const chatbotWidget = document.querySelector('[data-chatling-widget]');
+      // Method 2: Temporarily show and click the hidden chatbot widget
+      const chatbotWidget = document.querySelector('[data-chatling-widget], .chtl-widget, iframe[src*="chatling"]');
       if (chatbotWidget) {
+        // Temporarily show the widget
+        (chatbotWidget as HTMLElement).style.display = 'block';
+        (chatbotWidget as HTMLElement).style.visibility = 'visible';
+        
+        // Click it to open
         (chatbotWidget as HTMLElement).click();
+        
+        // Hide it again after clicking
+        setTimeout(() => {
+          (chatbotWidget as HTMLElement).style.display = 'none';
+          (chatbotWidget as HTMLElement).style.visibility = 'hidden';
+        }, 100);
+        
         return;
       }
       
-      // Method 3: Look for any chatling elements
+      // Method 3: Look for any chatling elements and temporarily show them
       const chatElements = document.querySelectorAll('[class*="chatling"], [id*="chatling"]');
       for (const element of chatElements) {
         if (element.tagName === 'BUTTON' || element.getAttribute('role') === 'button') {
+          // Temporarily show and click
+          (element as HTMLElement).style.display = 'block';
           (element as HTMLElement).click();
+          
+          // Hide again
+          setTimeout(() => {
+            (element as HTMLElement).style.display = 'none';
+          }, 100);
+          
           return;
         }
       }
       
-      // Method 4: Try to find and click any chatling iframe or widget
-      const allElements = document.querySelectorAll('*');
-      for (const element of allElements) {
-        const src = element.getAttribute('src');
-        if (src && src.includes('chatling')) {
-          (element as HTMLElement).click();
-          return;
-        }
-      }
+      // Method 4: Try to dispatch a custom event to trigger the chatbot
+      const event = new CustomEvent('chatling:open');
+      document.dispatchEvent(event);
       
       // Method 5: Wait a bit and try again
       setTimeout(() => {
-        const chatbotWidget = document.querySelector('[data-chatling-widget]');
+        const chatbotWidget = document.querySelector('[data-chatling-widget], .chtl-widget, iframe[src*="chatling"]');
         if (chatbotWidget) {
+          (chatbotWidget as HTMLElement).style.display = 'block';
+          (chatbotWidget as HTMLElement).style.visibility = 'visible';
           (chatbotWidget as HTMLElement).click();
+          
+          setTimeout(() => {
+            (chatbotWidget as HTMLElement).style.display = 'none';
+            (chatbotWidget as HTMLElement).style.visibility = 'hidden';
+          }, 100);
         }
       }, 1000);
     }
