@@ -23,37 +23,53 @@ export default function ChatbotIcon() {
         return;
       }
       
-      // Method 2: Temporarily show and click the hidden chatbot widget
+      // Method 2: Find and temporarily restore the hidden chatbot widget
       const chatbotWidget = document.querySelector('[data-chatling-widget], .chtl-widget, iframe[src*="chatling"]');
       if (chatbotWidget) {
-        // Temporarily show the widget
-        (chatbotWidget as HTMLElement).style.display = 'block';
-        (chatbotWidget as HTMLElement).style.visibility = 'visible';
+        // Temporarily restore visibility and functionality
+        (chatbotWidget as HTMLElement).style.opacity = '1';
+        (chatbotWidget as HTMLElement).style.pointerEvents = 'auto';
+        (chatbotWidget as HTMLElement).style.position = 'static';
+        (chatbotWidget as HTMLElement).style.left = 'auto';
+        (chatbotWidget as HTMLElement).style.top = 'auto';
         
         // Click it to open
         (chatbotWidget as HTMLElement).click();
         
         // Hide it again after a short delay
         setTimeout(() => {
-          (chatbotWidget as HTMLElement).style.display = 'none';
-          (chatbotWidget as HTMLElement).style.visibility = 'hidden';
-        }, 100);
+          (chatbotWidget as HTMLElement).style.opacity = '0';
+          (chatbotWidget as HTMLElement).style.pointerEvents = 'none';
+          (chatbotWidget as HTMLElement).style.position = 'absolute';
+          (chatbotWidget as HTMLElement).style.left = '-9999px';
+          (chatbotWidget as HTMLElement).style.top = '-9999px';
+        }, 200);
         
         return;
       }
       
-      // Method 3: Look for any Chatling elements and temporarily show them
+      // Method 3: Look for any Chatling elements and temporarily restore them
       const chatElements = document.querySelectorAll('[class*="chatling"], [id*="chatling"]');
       for (const element of chatElements) {
         if (element.tagName === 'BUTTON' || element.getAttribute('role') === 'button') {
-          // Temporarily show and click
-          (element as HTMLElement).style.display = 'block';
+          // Temporarily restore visibility
+          (element as HTMLElement).style.opacity = '1';
+          (element as HTMLElement).style.pointerEvents = 'auto';
+          (element as HTMLElement).style.position = 'static';
+          (element as HTMLElement).style.left = 'auto';
+          (element as HTMLElement).style.top = 'auto';
+          
+          // Click it
           (element as HTMLElement).click();
           
           // Hide again
           setTimeout(() => {
-            (element as HTMLElement).style.display = 'none';
-          }, 100);
+            (element as HTMLElement).style.opacity = '0';
+            (element as HTMLElement).style.pointerEvents = 'none';
+            (element as HTMLElement).style.position = 'absolute';
+            (element as HTMLElement).style.left = '-9999px';
+            (element as HTMLElement).style.top = '-9999px';
+          }, 200);
           
           return;
         }
@@ -63,14 +79,20 @@ export default function ChatbotIcon() {
       setTimeout(() => {
         const chatbotWidget = document.querySelector('[data-chatling-widget], .chtl-widget, iframe[src*="chatling"]');
         if (chatbotWidget) {
-          (chatbotWidget as HTMLElement).style.display = 'block';
-          (chatbotWidget as HTMLElement).style.visibility = 'visible';
+          (chatbotWidget as HTMLElement).style.opacity = '1';
+          (chatbotWidget as HTMLElement).style.pointerEvents = 'auto';
+          (chatbotWidget as HTMLElement).style.position = 'static';
+          (chatbotWidget as HTMLElement).style.left = 'auto';
+          (chatbotWidget as HTMLElement).style.top = 'auto';
           (chatbotWidget as HTMLElement).click();
           
           setTimeout(() => {
-            (chatbotWidget as HTMLElement).style.display = 'none';
-            (chatbotWidget as HTMLElement).style.visibility = 'hidden';
-          }, 100);
+            (chatbotWidget as HTMLElement).style.opacity = '0';
+            (chatbotWidget as HTMLElement).style.pointerEvents = 'none';
+            (chatbotWidget as HTMLElement).style.position = 'absolute';
+            (chatbotWidget as HTMLElement).style.left = '-9999px';
+            (chatbotWidget as HTMLElement).style.top = '-9999px';
+          }, 200);
         }
       }, 1000);
     }

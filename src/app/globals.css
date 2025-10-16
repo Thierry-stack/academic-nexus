@@ -2,20 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Hide the default Chatling widget button to prevent auto-opening */
+/* Hide only the visible chatling button/widget, but keep the functionality */
 [data-chatling-widget] {
-  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
 }
 
-/* Hide any default chatling buttons */
-.chtl-widget,
+/* Hide chatling iframes but keep them functional */
 iframe[src*="chatling"] {
-  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
 }
 
-/* Hide any chatling elements that might auto-trigger */
-[class*="chatling"]:not(.chatling-widget-active) {
-  display: none !important;
+/* Hide any visible chatling buttons */
+.chtl-widget {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
 }
 
 @layer base {
