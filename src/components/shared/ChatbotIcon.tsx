@@ -23,27 +23,54 @@ export default function ChatbotIcon() {
         return;
       }
       
-      // Method 2: Look for the chatbot button and click it
-      const chatbotButton = document.querySelector('[data-chatling-widget], .chtl-widget, iframe[src*="chatling"]');
-      if (chatbotButton) {
-        (chatbotButton as HTMLElement).click();
+      // Method 2: Temporarily show and click the hidden chatbot widget
+      const chatbotWidget = document.querySelector('[data-chatling-widget], .chtl-widget, iframe[src*="chatling"]');
+      if (chatbotWidget) {
+        // Temporarily show the widget
+        (chatbotWidget as HTMLElement).style.display = 'block';
+        (chatbotWidget as HTMLElement).style.visibility = 'visible';
+        
+        // Click it to open
+        (chatbotWidget as HTMLElement).click();
+        
+        // Hide it again after a short delay
+        setTimeout(() => {
+          (chatbotWidget as HTMLElement).style.display = 'none';
+          (chatbotWidget as HTMLElement).style.visibility = 'hidden';
+        }, 100);
+        
         return;
       }
       
-      // Method 3: Look for any Chatling elements
+      // Method 3: Look for any Chatling elements and temporarily show them
       const chatElements = document.querySelectorAll('[class*="chatling"], [id*="chatling"]');
       for (const element of chatElements) {
         if (element.tagName === 'BUTTON' || element.getAttribute('role') === 'button') {
+          // Temporarily show and click
+          (element as HTMLElement).style.display = 'block';
           (element as HTMLElement).click();
+          
+          // Hide again
+          setTimeout(() => {
+            (element as HTMLElement).style.display = 'none';
+          }, 100);
+          
           return;
         }
       }
       
-      // Method 4: Wait a moment and try again if widget is still loading
+      // Method 4: Wait and try again if widget is still loading
       setTimeout(() => {
-        const chatbotButton = document.querySelector('[data-chatling-widget], .chtl-widget, iframe[src*="chatling"]');
-        if (chatbotButton) {
-          (chatbotButton as HTMLElement).click();
+        const chatbotWidget = document.querySelector('[data-chatling-widget], .chtl-widget, iframe[src*="chatling"]');
+        if (chatbotWidget) {
+          (chatbotWidget as HTMLElement).style.display = 'block';
+          (chatbotWidget as HTMLElement).style.visibility = 'visible';
+          (chatbotWidget as HTMLElement).click();
+          
+          setTimeout(() => {
+            (chatbotWidget as HTMLElement).style.display = 'none';
+            (chatbotWidget as HTMLElement).style.visibility = 'hidden';
+          }, 100);
         }
       }, 1000);
     }

@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide the default Chatling widget button to prevent auto-opening */
+[data-chatling-widget] {
+  display: none !important;
+}
+
+/* Hide any default chatling buttons */
+.chtl-widget,
+iframe[src*="chatling"] {
+  display: none !important;
+}
+
+/* Hide any chatling elements that might auto-trigger */
+[class*="chatling"]:not(.chatling-widget-active) {
+  display: none !important;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
