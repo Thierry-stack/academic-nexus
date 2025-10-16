@@ -15,52 +15,35 @@ export default function ChatbotIcon() {
   }, []);
 
   const openChatbot = () => {
-    // Only trigger the chatbot on explicit click
+    // Trigger the chatbot on click
     if (typeof window !== 'undefined') {
-      // Method 1: Try to trigger via window object first
+      // Method 1: Try to trigger via window object
       if ((window as any).chatling && typeof (window as any).chatling.open === 'function') {
         (window as any).chatling.open();
         return;
       }
       
-      // Method 2: Look for chatbot widget and activate it
-      const chatbotWidget = document.querySelector('[data-chatling-widget], .chtl-widget, #chatling-widget, iframe[src*="chatling"]');
-      if (chatbotWidget) {
-        // Add the active class to show the widget
-        chatbotWidget.classList.add('chatling-widget-active');
-        // Remove the default hidden styles
-        (chatbotWidget as HTMLElement).style.display = 'block';
-        (chatbotWidget as HTMLElement).style.visibility = 'visible';
-        // Try to click it
-        (chatbotWidget as HTMLElement).click();
+      // Method 2: Look for the chatbot button and click it
+      const chatbotButton = document.querySelector('[data-chatling-widget], .chtl-widget, iframe[src*="chatling"]');
+      if (chatbotButton) {
+        (chatbotButton as HTMLElement).click();
         return;
       }
       
-      // Method 3: Look for any Chatling-related elements and activate them
-      const chatElements = document.querySelectorAll('[class*="chatling"], [id*="chatling"], [data-*="chatling"]');
+      // Method 3: Look for any Chatling elements
+      const chatElements = document.querySelectorAll('[class*="chatling"], [id*="chatling"]');
       for (const element of chatElements) {
-        element.classList.add('chatling-widget-active');
-        (element as HTMLElement).style.display = 'block';
-        (element as HTMLElement).style.visibility = 'visible';
-        
         if (element.tagName === 'BUTTON' || element.getAttribute('role') === 'button') {
           (element as HTMLElement).click();
           return;
         }
       }
       
-      // Method 4: Try to dispatch a custom event
-      const event = new CustomEvent('chatling:open');
-      document.dispatchEvent(event);
-      
-      // Method 5: Wait and try again if widget hasn't loaded yet
+      // Method 4: Wait a moment and try again if widget is still loading
       setTimeout(() => {
-        const chatbotWidget = document.querySelector('[data-chatling-widget], .chtl-widget, #chatling-widget, iframe[src*="chatling"]');
-        if (chatbotWidget) {
-          chatbotWidget.classList.add('chatling-widget-active');
-          (chatbotWidget as HTMLElement).style.display = 'block';
-          (chatbotWidget as HTMLElement).style.visibility = 'visible';
-          (chatbotWidget as HTMLElement).click();
+        const chatbotButton = document.querySelector('[data-chatling-widget], .chtl-widget, iframe[src*="chatling"]');
+        if (chatbotButton) {
+          (chatbotButton as HTMLElement).click();
         }
       }, 1000);
     }

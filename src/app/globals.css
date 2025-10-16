@@ -2,21 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Hide Chatling widget by default - only show when triggered by our button */
-[data-chatling-widget],
-.chtl-widget,
-iframe[src*="chatling"],
-.chatling-widget {
-  display: none !important;
-  visibility: hidden !important;
-}
-
-/* Show Chatling widget only when explicitly triggered */
-.chatling-widget-active {
-  display: block !important;
-  visibility: visible !important;
-}
-
 @layer base {
   html {
     scroll-behavior: smooth;

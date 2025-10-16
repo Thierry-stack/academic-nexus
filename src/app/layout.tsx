@@ -34,8 +34,7 @@ export default function RootLayout({
               window.chtlConfig = { 
                 chatbotId: "9258445857", 
                 display: "fullscreen", 
-                autoOpen: false,
-                hideWidget: true
+                autoOpen: false
               };
             `,
           }}
@@ -46,7 +45,6 @@ export default function RootLayout({
           id="chtl-script"
           data-display="fullscreen"
           data-auto-open="false"
-          data-hide-widget="true"
           type="text/javascript"
           src="https://chatling.ai/js/embed.js"
         />
