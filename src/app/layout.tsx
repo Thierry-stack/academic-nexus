@@ -30,25 +30,13 @@ export default function RootLayout({
         {/* Chatbot Integration */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `
-              window.chtlConfig = { 
-                chatbotId: "9258445857", 
-                display: "fullscreen", 
-                autoOpen: false,
-                showWidget: false,
-                enableAutoOpen: false
-              };
-            `,
+            __html: `window.chtlConfig = { chatbotId: "9258445857" }`,
           }}
         />
         <script
           async
           data-id="9258445857"
           id="chtl-script"
-          data-display="fullscreen"
-          data-auto-open="false"
-          data-show-widget="false"
-          data-enable-auto-open="false"
           type="text/javascript"
           src="https://chatling.ai/js/embed.js"
         />
