@@ -26,6 +26,22 @@ export default function RootLayout({
         <AuthProvider>
           {children}
         </AuthProvider>
+        
+        {/* Chatbot Integration */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.chtlConfig = { chatbotId: "9258445857" , display: "fullscreen", autoOpen: false }`,
+          }}
+        />
+        <script
+          async
+          data-id="9258445857"
+          id="chtl-script"
+          data-display="fullscreen"
+          data-auto-open="false"
+          type="text/javascript"
+          src="https://chatling.ai/js/embed.js"
+        />
       </body>
     </html>
   );

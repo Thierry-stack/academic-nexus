@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import ChatbotIcon from '@/components/shared/ChatbotIcon';
 
 export default function StudentLayout({
   children,
@@ -35,6 +36,9 @@ export default function StudentLayout({
       </nav>
       
       {children}
+      
+      {/* Chatbot Icon */}
+      <ChatbotIcon />
     </div>
   );
 }

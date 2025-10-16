@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import ChatbotIcon from '@/components/shared/ChatbotIcon';
 
 export default function Home() {
   return (
@@ -79,6 +80,9 @@ export default function Home() {
         </div>
       </main>
       </div>
+      
+      {/* Chatbot Icon */}
+      <ChatbotIcon />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
+import ChatbotIcon from '@/components/shared/ChatbotIcon';
 
 export default function LibrarianLayout({
   children,
@@ -107,6 +108,9 @@ export default function LibrarianLayout({
           children
         )}
       </main>
+      
+      {/* Chatbot Icon */}
+      <ChatbotIcon />
     </div>
   );
 }
