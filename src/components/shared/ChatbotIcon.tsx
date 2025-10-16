@@ -42,7 +42,8 @@ export default function ChatbotIcon() {
       // Method 4: Try to find and click any chatling iframe or widget
       const allElements = document.querySelectorAll('*');
       for (const element of allElements) {
-        if (element.getAttribute('src') && element.getAttribute('src').includes('chatling')) {
+        const src = element.getAttribute('src');
+        if (src && src.includes('chatling')) {
           (element as HTMLElement).click();
           return;
         }
