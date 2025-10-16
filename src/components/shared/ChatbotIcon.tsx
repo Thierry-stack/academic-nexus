@@ -15,7 +15,7 @@ export default function ChatbotIcon() {
   }, []);
 
   const openChatbot = () => {
-    // Trigger the chatbot on click
+    // Simple approach - just trigger the chatbot directly
     if (typeof window !== 'undefined') {
       // Method 1: Try to trigger via window object
       if ((window as any).chatling && typeof (window as any).chatling.open === 'function') {
@@ -23,76 +23,36 @@ export default function ChatbotIcon() {
         return;
       }
       
-      // Method 2: Find and temporarily restore the hidden chatbot widget
-      const chatbotWidget = document.querySelector('[data-chatling-widget], .chtl-widget, iframe[src*="chatling"]');
+      // Method 2: Look for the chatbot widget and click it
+      const chatbotWidget = document.querySelector('[data-chatling-widget]');
       if (chatbotWidget) {
-        // Temporarily restore visibility and functionality
-        (chatbotWidget as HTMLElement).style.opacity = '1';
-        (chatbotWidget as HTMLElement).style.pointerEvents = 'auto';
-        (chatbotWidget as HTMLElement).style.position = 'static';
-        (chatbotWidget as HTMLElement).style.left = 'auto';
-        (chatbotWidget as HTMLElement).style.top = 'auto';
-        
-        // Click it to open
         (chatbotWidget as HTMLElement).click();
-        
-        // Hide it again after a short delay
-        setTimeout(() => {
-          (chatbotWidget as HTMLElement).style.opacity = '0';
-          (chatbotWidget as HTMLElement).style.pointerEvents = 'none';
-          (chatbotWidget as HTMLElement).style.position = 'absolute';
-          (chatbotWidget as HTMLElement).style.left = '-9999px';
-          (chatbotWidget as HTMLElement).style.top = '-9999px';
-        }, 200);
-        
         return;
       }
       
-      // Method 3: Look for any Chatling elements and temporarily restore them
+      // Method 3: Look for any chatling elements
       const chatElements = document.querySelectorAll('[class*="chatling"], [id*="chatling"]');
       for (const element of chatElements) {
         if (element.tagName === 'BUTTON' || element.getAttribute('role') === 'button') {
-          // Temporarily restore visibility
-          (element as HTMLElement).style.opacity = '1';
-          (element as HTMLElement).style.pointerEvents = 'auto';
-          (element as HTMLElement).style.position = 'static';
-          (element as HTMLElement).style.left = 'auto';
-          (element as HTMLElement).style.top = 'auto';
-          
-          // Click it
           (element as HTMLElement).click();
-          
-          // Hide again
-          setTimeout(() => {
-            (element as HTMLElement).style.opacity = '0';
-            (element as HTMLElement).style.pointerEvents = 'none';
-            (element as HTMLElement).style.position = 'absolute';
-            (element as HTMLElement).style.left = '-9999px';
-            (element as HTMLElement).style.top = '-9999px';
-          }, 200);
-          
           return;
         }
       }
       
-      // Method 4: Wait and try again if widget is still loading
+      // Method 4: Try to find and click any chatling iframe or widget
+      const allElements = document.querySelectorAll('*');
+      for (const element of allElements) {
+        if (element.getAttribute('src') && element.getAttribute('src').includes('chatling')) {
+          (element as HTMLElement).click();
+          return;
+        }
+      }
+      
+      // Method 5: Wait a bit and try again
       setTimeout(() => {
-        const chatbotWidget = document.querySelector('[data-chatling-widget], .chtl-widget, iframe[src*="chatling"]');
+        const chatbotWidget = document.querySelector('[data-chatling-widget]');
         if (chatbotWidget) {
-          (chatbotWidget as HTMLElement).style.opacity = '1';
-          (chatbotWidget as HTMLElement).style.pointerEvents = 'auto';
-          (chatbotWidget as HTMLElement).style.position = 'static';
-          (chatbotWidget as HTMLElement).style.left = 'auto';
-          (chatbotWidget as HTMLElement).style.top = 'auto';
           (chatbotWidget as HTMLElement).click();
-          
-          setTimeout(() => {
-            (chatbotWidget as HTMLElement).style.opacity = '0';
-            (chatbotWidget as HTMLElement).style.pointerEvents = 'none';
-            (chatbotWidget as HTMLElement).style.position = 'absolute';
-            (chatbotWidget as HTMLElement).style.left = '-9999px';
-            (chatbotWidget as HTMLElement).style.top = '-9999px';
-          }, 200);
         }
       }, 1000);
     }

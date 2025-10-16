@@ -2,31 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Hide only the visible chatling button/widget, but keep the functionality */
+/* Hide the default chatling widget button only */
 [data-chatling-widget] {
-  opacity: 0 !important;
-  pointer-events: none !important;
-  position: absolute !important;
-  left: -9999px !important;
-  top: -9999px !important;
-}
-
-/* Hide chatling iframes but keep them functional */
-iframe[src*="chatling"] {
-  opacity: 0 !important;
-  pointer-events: none !important;
-  position: absolute !important;
-  left: -9999px !important;
-  top: -9999px !important;
-}
-
-/* Hide any visible chatling buttons */
-.chtl-widget {
-  opacity: 0 !important;
-  pointer-events: none !important;
-  position: absolute !important;
-  left: -9999px !important;
-  top: -9999px !important;
+  display: none !important;
 }
 
 @layer base {
