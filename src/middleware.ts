@@ -1,37 +1,27 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+const publicLibrarianPaths = ['/librarian/login', '/librarian/register'];
+
 export function middleware(request: NextRequest) {
-  // Don't protect the login page itself
-  if (request.nextUrl.pathname === '/librarian/login') {
+  const { pathname } = request.nextUrl;
+
+  if (!pathname.startsWith('/librarian')) {
     return NextResponse.next();
   }
-  
-  // Protect all other librarian routes
-  if (request.nextUrl.pathname.startsWith('/librarian')) {
-    // Check for both cookie-based auth and allow the client-side auth to handle localStorage
-    const authToken = request.cookies.get('auth_token')?.value;
-    
-    // If no auth token, let the client-side authentication handle the redirect
-    // This allows the AuthContext to check localStorage and redirect if needed
-    if (!authToken) {
-      return NextResponse.next();
-    }
-    
-    try {
-      if (!authToken || authToken === '') {
-        return NextResponse.next();
-      }
-    } catch (error) {
-      return NextResponse.next();
-    }
+
+  if (publicLibrarianPaths.some((p) => pathname === p)) {
+    return NextResponse.next();
   }
-  
+
+  const authToken = request.cookies.get('auth_token')?.value;
+  if (!authToken) {
+    return NextResponse.redirect(new URL('/librarian/login', request.url));
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    '/librarian/:path*',
-  ],
+  matcher: ['/librarian/:path*'],
 };

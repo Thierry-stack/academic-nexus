@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import PasswordInputWithToggle from '@/components/shared/PasswordInputWithToggle';
 
 export default function LibrarianRegister() {
   const router = useRouter();
@@ -31,10 +32,12 @@ export default function LibrarianRegister() {
     }
 
     try {
-      await register(formData.email, formData.password, formData.name, 'librarian');
-      router.push('/librarian/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'Registration failed');
+      await register(formData.email, formData.password, formData.name);
+      router.push('/librarian/login?registered=1');
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : 'Registration failed';
+      setError(message);
     }
   };
 
@@ -52,19 +55,24 @@ export default function LibrarianRegister() {
           <Link href="/" className="inline-block">
             <h1 className="text-3xl font-bold text-academic-blue">Academic Nexus</h1>
           </Link>
-          <h2 className="mt-4 text-2xl font-bold text-gray-900">Librarian Registration</h2>
+          <h2 className="mt-4 text-2xl font-bold text-gray-900">
+            Librarian Registration
+          </h2>
           <p className="mt-2 text-gray-600">Create your librarian account</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded whitespace-pre-line text-sm">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Full Name
             </label>
             <input
@@ -80,7 +88,10 @@ export default function LibrarianRegister() {
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Email Address
             </label>
             <input
@@ -96,34 +107,38 @@ export default function LibrarianRegister() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Password
             </label>
-            <input
-              type="password"
+            <PasswordInputWithToggle
               id="password"
               name="password"
               required
               value={formData.password}
               onChange={handleChange}
-              className="input-field"
               placeholder="Enter your password"
+              autoComplete="new-password"
             />
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Confirm Password
             </label>
-            <input
-              type="password"
+            <PasswordInputWithToggle
               id="confirmPassword"
               name="confirmPassword"
               required
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="input-field"
               placeholder="Confirm your password"
+              autoComplete="new-password"
             />
           </div>
 
@@ -139,15 +154,15 @@ export default function LibrarianRegister() {
         <div className="mt-6 text-center">
           <p className="text-gray-600">
             Already have an account?{' '}
-            <Link 
-              href="/librarian/login" 
+            <Link
+              href="/librarian/login"
               className="text-academic-blue hover:text-blue-700 font-medium"
             >
               Sign in here
             </Link>
           </p>
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="inline-block mt-4 text-academic-blue hover:text-blue-700 font-medium"
           >
             ← Back to Home

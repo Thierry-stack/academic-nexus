@@ -39,7 +39,7 @@ export default function BooksManagement() {
 
   const fetchBooks = async () => {
     try {
-      const response = await fetch('/api/books');
+      const response = await fetch('/api/books', { credentials: 'include' });
       const data = await response.json();
       setBooks(data.books || []);
     } catch (error) {
@@ -61,6 +61,7 @@ export default function BooksManagement() {
 
       const response = await fetch('/api/upload', {
         method: 'POST',
+        credentials: 'include',
         body: formData,
       });
 
@@ -92,6 +93,7 @@ export default function BooksManagement() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(newBook),
       });
 
@@ -126,6 +128,7 @@ export default function BooksManagement() {
     try {
       const response = await fetch(`/api/books/${bookId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       if (response.ok) {

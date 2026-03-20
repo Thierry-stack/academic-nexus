@@ -32,11 +32,16 @@ export default function RequestsManagement() {
 
   const fetchRequests = async () => {
     try {
-      const response = await fetch('/api/requests');
+      const response = await fetch('/api/requests', { credentials: 'include' });
+      if (!response.ok) {
+        setRequests([]);
+        return;
+      }
       const data = await response.json();
       setRequests(data.requests || []);
     } catch (error) {
       console.error('Error fetching requests:', error);
+      setRequests([]);
     } finally {
       setIsLoading(false);
     }
@@ -52,21 +57,22 @@ export default function RequestsManagement() {
 
   const updateRequestStatus = async (requestId: string, newStatus: 'approved' | 'rejected') => {
     try {
-      // For now, we'll update locally. In a real app, you'd call an API
-      setRequests(requests.map(req => 
-        req._id === requestId ? { ...req, status: newStatus } : req
-      ));
-      
+      const response = await fetch(`/api/requests/${requestId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        alert(typeof err.error === 'string' ? err.error : 'Failed to update request');
+        return;
+      }
+      setRequests((prev) =>
+        prev.map((req) => (req._id === requestId ? { ...req, status: newStatus } : req))
+      );
       setSelectedRequest(null);
       alert(`Request ${newStatus} successfully!`);
-      
-      // In a real app, you'd call:
-      // await fetch(`/api/requests/${requestId}`, {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ status: newStatus })
-      // });
-      
     } catch (error) {
       console.error('Error updating request:', error);
       alert('Failed to update request');

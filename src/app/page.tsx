@@ -3,7 +3,10 @@ import ChatbotIcon from '@/components/shared/ChatbotIcon';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-cover bg-center bg-fixed" style={{ backgroundImage: 'url(/images/homebackground.png)' }}>
+    <div
+      className="min-h-screen bg-academic-navy bg-cover bg-center bg-fixed"
+      style={{ backgroundImage: 'url(/images/homebackground.png)' }}
+    >
       <div className="min-h-screen bg-black bg-opacity-70">
         {/* Navigation */}
         <nav className="bg-white/10 backdrop-blur-md border-b border-white/20">

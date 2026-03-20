@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     await connectDB();
     
-    const { email, password, name, role } = await request.json();
+    const { email, password, name } = await request.json();
     
     // Validation
     if (!email || !password || !name) {
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.trim().toLowerCase() });
     if (existingUser) {
       return NextResponse.json(
         { error: 'User with this email already exists' },
@@ -36,10 +36,10 @@ export async function POST(request: NextRequest) {
     // Hash password and create user
     const hashedPassword = await hashPassword(password);
     const user = await User.create({
-      email,
+      email: email.trim().toLowerCase(),
       password: hashedPassword,
-      name,
-      role: role || 'student', // Default to student role
+      name: name.trim(),
+      role: 'student',
     });
     
     // Generate token

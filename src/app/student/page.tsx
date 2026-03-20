@@ -2,9 +2,19 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import BookSearchAutocomplete from '@/components/student/BookSearchAutocomplete';
 
 export default function StudentDashboard() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
+
+  const goToBooksSearch = () => {
+    const q = searchQuery.trim();
+    router.push(
+      q ? `/student/books?search=${encodeURIComponent(q)}` : '/student/books'
+    );
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -16,33 +26,17 @@ export default function StudentDashboard() {
         <p className="text-lg text-gray-600 mb-8">
           Discover and explore our extensive collection of books and academic resources
         </p>
-        
-        {/* Search Bar */}
-     {/* In the StudentDashboard component, replace the search section with: */}
-<div className="max-w-2xl mx-auto">
-  <div className="relative">
-    <input
-      type="text"
-      placeholder="Search for books, authors, ISBN, or topics..."
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value)}
-      onKeyPress={(e) => {
-        if (e.key === 'Enter') {
-          window.location.href = `/student/books?search=${encodeURIComponent(searchQuery)}`;
-        }
-      }}
-      className="w-full px-6 py-4 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-academic-blue focus:border-transparent text-lg shadow-sm"
-    />
-    <button 
-      onClick={() => {
-        window.location.href = `/student/books?search=${encodeURIComponent(searchQuery)}`;
-      }}
-      className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-academic-blue text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors duration-200 font-medium"
-    >
-      Search
-    </button>
-  </div>
-</div>
+
+        <BookSearchAutocomplete
+          variant="hero"
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onSubmitSearch={goToBooksSearch}
+          onSuggestionSelect={(s) =>
+            router.push(`/student/books?search=${encodeURIComponent(s.title)}`)
+          }
+          placeholder="Search for books, authors, ISBN, or topics..."
+        />
       </div>
 
       {/* Quick Access Sections */}

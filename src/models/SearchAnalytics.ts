@@ -17,6 +17,7 @@ const SearchAnalyticsSchema = new mongoose.Schema({
   },
 }, {
   timestamps: true,
+  collection: 'searchanalytics',
 });
 
 export default mongoose.models.SearchAnalytics || mongoose.model('SearchAnalytics', SearchAnalyticsSchema);

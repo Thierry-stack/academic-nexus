@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import BookSearchAutocomplete from '@/components/student/BookSearchAutocomplete';
 
 interface Book {
   _id: string;
@@ -25,6 +26,12 @@ export default function BooksPage() {
 
   useEffect(() => {
     fetchBooks();
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const q = new URLSearchParams(window.location.search).get('search');
+    if (q) setSearchQuery(q);
   }, []);
 
   useEffect(() => {
@@ -106,18 +113,12 @@ export default function BooksPage() {
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
           {/* Search Bar */}
           <div className="flex-1 max-w-2xl">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search by title, author, ISBN, or description..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-6 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-academic-blue focus:border-transparent shadow-sm"
-              />
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                🔍
-              </div>
-            </div>
+            <BookSearchAutocomplete
+              variant="inline"
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Search by title, author, ISBN, or description..."
+            />
           </div>
 
           {/* Sort Options */}

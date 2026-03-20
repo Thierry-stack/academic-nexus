@@ -1,31 +1,46 @@
-// app/api/auth/me/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/database';
 import User from '@/models/User';
-import { verifyToken, getTokenFromHeader, getTokenFromCookies } from '@/lib/auth';
+import { verifyToken, AuthError } from '@/lib/auth';
+import {
+  isMongoUriMissing,
+  MONGO_URI_MISSING_MESSAGE,
+  mongoConnectFailedBody,
+  isMongoConfigErrorMessage,
+  isMongoConnectivityFailure,
+} from '@/lib/mongoEnv';
 
-export const dynamic = 'force-dynamic'; // <<< ensure runtime execution
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
+  const authHeader = request.headers.get('authorization');
+  let token: string | undefined;
+  if (authHeader?.startsWith('Bearer ')) {
+    token = authHeader.slice(7);
+  } else {
+    token = request.cookies.get('auth_token')?.value;
+  }
+
+  if (!token?.trim()) {
+    return NextResponse.json({ error: 'No token provided' }, { status: 401 });
+  }
+
+  let payload: ReturnType<typeof verifyToken>;
+  try {
+    payload = verifyToken(token);
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
+    throw error;
+  }
+
+  if (isMongoUriMissing()) {
+    return NextResponse.json({ error: MONGO_URI_MISSING_MESSAGE }, { status: 503 });
+  }
+
   try {
     await connectDB();
-
-    let token: string | undefined;
-
-    // Try Authorization header first
-    const authHeader = request.headers.get('authorization');
-    if (authHeader) {
-      token = getTokenFromHeader(authHeader);
-    } else {
-      // Fallback to cookies
-      token = getTokenFromCookies(request.cookies);
-    }
-
-    if (!token) {
-      return NextResponse.json({ error: 'No token provided' }, { status: 401 });
-    }
-
-    const payload = verifyToken(token);
 
     const user = await User.findById(payload.userId).select('-password');
     if (!user) {
@@ -42,6 +57,18 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Auth me error:', error);
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+
+    if (error instanceof Error && isMongoConfigErrorMessage(error.message)) {
+      return NextResponse.json({ error: MONGO_URI_MISSING_MESSAGE }, { status: 503 });
+    }
+
+    if (isMongoConnectivityFailure(error)) {
+      return NextResponse.json(
+        { error: mongoConnectFailedBody(error) },
+        { status: 503 }
+      );
+    }
+
+    return NextResponse.json({ error: 'Failed to load session' }, { status: 500 });
   }
 }

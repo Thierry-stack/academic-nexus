@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/database';
 import Book from '@/models/Book';
 import SearchAnalytics from '@/models/SearchAnalytics';
+import { getLibrarianAuth } from '@/lib/getLibrarianAuth';
+import {
+  isMongoUriMissing,
+  MONGO_URI_MISSING_MESSAGE,
+  mongoConnectFailedBody,
+  isMongoConfigErrorMessage,
+  isMongoConnectivityFailure,
+} from '@/lib/mongoEnv';
 
 // GET - Search books
 export async function GET(request: NextRequest) {
@@ -68,36 +76,52 @@ export async function GET(request: NextRequest) {
 
 // POST - Add new book (Librarian only)
 export async function POST(request: NextRequest) {
+  const auth = getLibrarianAuth(request);
+  if (!auth.ok) return auth.response;
+
   try {
+    if (isMongoUriMissing()) {
+      return NextResponse.json({ error: MONGO_URI_MISSING_MESSAGE }, { status: 503 });
+    }
+
     await connectDB();
-    
+
     const body = await request.json();
-    
+    const isbn =
+      typeof body.isbn === 'string' && body.isbn.trim() ? body.isbn.trim() : undefined;
+
     const book = await Book.create({
       title: body.title,
       author: body.author,
-      isbn: body.isbn,
+      ...(isbn ? { isbn } : {}),
       description: body.description,
       publicationDate: new Date(body.publicationDate),
       shelfLocation: body.shelfLocation,
       rowNumber: body.rowNumber,
-      coverImage: body.coverImage || null,
+      coverImage: body.coverImage || undefined,
     });
-    
+
     return NextResponse.json(book, { status: 201 });
-    
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create Book Error:', error);
-    
-    if (error.code === 11000) {
+
+    if (error instanceof Error && isMongoConfigErrorMessage(error.message)) {
+      return NextResponse.json({ error: MONGO_URI_MISSING_MESSAGE }, { status: 503 });
+    }
+    if (isMongoConnectivityFailure(error)) {
+      return NextResponse.json({ error: mongoConnectFailedBody(error) }, { status: 503 });
+    }
+
+    const err = error as { code?: number; message?: string };
+    if (err.code === 11000) {
       return NextResponse.json(
         { error: 'A book with this ISBN already exists' },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
-      { error: `Failed to create book: ${error.message || 'Unknown error'}` },
+      { error: `Failed to create book: ${err.message || 'Unknown error'}` },
       { status: 500 }
     );
   }

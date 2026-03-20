@@ -37,6 +37,7 @@ const BookRequestSchema = new mongoose.Schema({
   },
 }, {
   timestamps: true,
+  collection: 'bookrequests',
 });
 
 export default mongoose.models.BookRequest || mongoose.model('BookRequest', BookRequestSchema);

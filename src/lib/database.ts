@@ -1,10 +1,6 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://nayiturikithierry401:Thierry10@cluster0.c12pvez.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
-
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable');
-}
+const MONGODB_URI = process.env.MONGODB_URI;
 
 interface MongooseCache {
   conn: typeof mongoose | null;
@@ -25,6 +21,12 @@ if (!global.mongoose) {
 }
 
 async function connectDB() {
+  if (!MONGODB_URI) {
+    throw new Error(
+      'Missing MONGODB_URI. Create .env.local in the project root and set MONGODB_URI to your MongoDB Atlas connection string.'
+    );
+  }
+
   if (cached.conn) {
     return cached.conn;
   }
@@ -32,6 +34,8 @@ async function connectDB() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 25_000,
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {

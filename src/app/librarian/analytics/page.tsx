@@ -28,37 +28,33 @@ export default function AnalyticsDashboard() {
 
   const fetchAnalytics = async () => {
     try {
-      // For now, we'll use mock data. In a real app, you'd call the API
-      const mockData: SearchAnalytics = {
-        popularSearches: [
-          { _id: 'programming', count: 45, avgResults: 12, lastSearched: new Date().toISOString() },
-          { _id: 'machine learning', count: 32, avgResults: 8, lastSearched: new Date().toISOString() },
-          { _id: 'web development', count: 28, avgResults: 15, lastSearched: new Date().toISOString() },
-          { _id: 'data science', count: 24, avgResults: 10, lastSearched: new Date().toISOString() },
-          { _id: 'artificial intelligence', count: 18, avgResults: 6, lastSearched: new Date().toISOString() },
-        ],
-        searchTrends: [
-          { _id: '2024-01-01', searches: 15 },
-          { _id: '2024-01-02', searches: 22 },
-          { _id: '2024-01-03', searches: 18 },
-          { _id: '2024-01-04', searches: 25 },
-          { _id: '2024-01-05', searches: 30 },
-          { _id: '2024-01-06', searches: 28 },
-          { _id: '2024-01-07', searches: 35 },
-        ],
-        totalSearches: 3456,
-        period: `${timeRange} days`
-      };
-      
-      setAnalytics(mockData);
-      
-      // In a real app, you'd use:
-      // const response = await fetch(`/api/analytics?days=${timeRange}`);
-      // const data = await response.json();
-      // setAnalytics(data);
-      
+      const response = await fetch(`/api/analytics?days=${timeRange}`, {
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        setAnalytics({
+          popularSearches: [],
+          searchTrends: [],
+          totalSearches: 0,
+          period: `${timeRange} days`,
+        });
+        return;
+      }
+      const data = await response.json();
+      setAnalytics({
+        popularSearches: data.popularSearches ?? [],
+        searchTrends: data.searchTrends ?? [],
+        totalSearches: data.totalSearches ?? 0,
+        period: data.period ?? `${timeRange} days`,
+      });
     } catch (error) {
       console.error('Error fetching analytics:', error);
+      setAnalytics({
+        popularSearches: [],
+        searchTrends: [],
+        totalSearches: 0,
+        period: `${timeRange} days`,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -112,7 +108,9 @@ export default function AnalyticsDashboard() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Total Searches</p>
-              <p className="text-2xl font-bold text-gray-900">{analytics?.totalSearches.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {(analytics?.totalSearches ?? 0).toLocaleString()}
+              </p>
               <p className="text-xs text-gray-500">Last {timeRange} days</p>
             </div>
           </div>
@@ -125,7 +123,9 @@ export default function AnalyticsDashboard() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Unique Search Terms</p>
-              <p className="text-2xl font-bold text-gray-900">{analytics?.popularSearches.length}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {analytics?.popularSearches?.length ?? 0}
+              </p>
               <p className="text-xs text-gray-500">Different queries</p>
             </div>
           </div>
@@ -139,7 +139,12 @@ export default function AnalyticsDashboard() {
             <div>
               <p className="text-sm text-gray-600">Avg Results per Search</p>
               <p className="text-2xl font-bold text-gray-900">
-                {((analytics?.popularSearches || []).reduce((acc, curr) => acc + curr.avgResults, 0) / ((analytics?.popularSearches || []).length || 1)).toFixed(1)}
+                {(() => {
+                  const list = analytics?.popularSearches ?? [];
+                  if (!list.length) return '0.0';
+                  const sum = list.reduce((acc, curr) => acc + (curr.avgResults ?? 0), 0);
+                  return (sum / list.length).toFixed(1);
+                })()}
               </p>
               <p className="text-xs text-gray-500">Books found per search</p>
             </div>
@@ -152,7 +157,10 @@ export default function AnalyticsDashboard() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Popular Search Terms</h2>
           <div className="space-y-3">
-            {analytics?.popularSearches.map((search, index) => (
+            {(analytics?.popularSearches?.length ?? 0) === 0 && (
+              <p className="text-sm text-gray-500">No search data in this period yet.</p>
+            )}
+            {analytics?.popularSearches?.map((search, index) => (
               <div key={search._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center">
                   <span className="text-lg font-bold text-academic-blue mr-3">#{index + 1}</span>
@@ -177,24 +185,29 @@ export default function AnalyticsDashboard() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Search Trends</h2>
           <div className="space-y-4">
-            {analytics?.searchTrends.map((day) => (
-              <div key={day._id} className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">{day._id}</span>
-                <div className="flex items-center space-x-2">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-academic-blue h-2 rounded-full" 
-                      style={{ 
-                        width: `${(day.searches / Math.max(...(analytics?.searchTrends || []).map(t => t.searches))) * 100}%` 
-                      }}
-                    ></div>
+            {(analytics?.searchTrends?.length ?? 0) === 0 && (
+              <p className="text-sm text-gray-500">No daily trends in this period yet.</p>
+            )}
+            {(() => {
+              const trends = analytics?.searchTrends ?? [];
+              const maxSearches = Math.max(1, ...trends.map((t) => t.searches));
+              return trends.map((day) => (
+                <div key={day._id} className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">{day._id}</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-academic-blue h-2 rounded-full"
+                        style={{ width: `${(day.searches / maxSearches) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-sm font-medium text-gray-900 w-8 text-right">
+                      {day.searches}
+                    </span>
                   </div>
-                  <span className="text-sm font-medium text-gray-900 w-8 text-right">
-                    {day.searches}
-                  </span>
                 </div>
-              </div>
-            ))}
+              ));
+            })()}
           </div>
         </div>
       </div>
@@ -202,22 +215,27 @@ export default function AnalyticsDashboard() {
       {/* Insights Section */}
       <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Key Insights</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-blue-50 rounded-lg p-4">
-            <h3 className="font-semibold text-blue-900 mb-2">📈 Trending Topics</h3>
-            <p className="text-blue-700 text-sm">
-              "Programming" and "Machine Learning" are the most searched topics, 
-              indicating high student interest in computer science and AI fields.
-            </p>
+        {(analytics?.totalSearches ?? 0) === 0 ? (
+          <p className="text-sm text-gray-600">
+            As students search the catalog, popular terms and trends will appear here.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-blue-50 rounded-lg p-4">
+              <h3 className="font-semibold text-blue-900 mb-2">📈 Popular terms</h3>
+              <p className="text-blue-700 text-sm">
+                Use the list above to see which subjects students look for most often in this
+                period.
+              </p>
+            </div>
+            <div className="bg-green-50 rounded-lg p-4">
+              <h3 className="font-semibold text-green-900 mb-2">💡 Collection planning</h3>
+              <p className="text-green-700 text-sm">
+                Cross-check top searches with book requests to decide what to acquire next.
+              </p>
+            </div>
           </div>
-          <div className="bg-green-50 rounded-lg p-4">
-            <h3 className="font-semibold text-green-900 mb-2">💡 Recommendation</h3>
-            <p className="text-green-700 text-sm">
-              Consider adding more books on Data Science and Artificial Intelligence 
-              based on search popularity and student requests.
-            </p>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -55,32 +55,23 @@ export default function ChatbotIcon() {
     <div className="fixed bottom-6 right-6 z-50">
       <button
         onClick={openChatbot}
-        className="group relative bg-academic-gold hover:bg-yellow-500 text-academic-navy p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-academic-gold focus:ring-opacity-50"
+        className="group relative flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white shadow-lg ring-1 ring-black/10 transition-all duration-300 hover:bg-gray-800 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
         aria-label="Open Chat Assistant"
         title="Need help? Chat with our assistant!"
       >
-        {/* Chat Icon */}
         <svg
-          className="w-6 h-6 transition-transform duration-300 group-hover:scale-110"
+          className="h-6 w-6 transition-transform duration-300 group-hover:scale-110"
           fill="currentColor"
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"
+          aria-hidden
         >
-          <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+          <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
         </svg>
 
-        {/* Pulse Animation */}
-        <div className="absolute inset-0 bg-academic-gold rounded-full animate-ping opacity-20"></div>
-        
-        {/* Tooltip */}
-        <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+        <div className="pointer-events-none absolute bottom-full right-0 mb-2 whitespace-nowrap rounded-lg bg-gray-900 px-3 py-2 text-sm text-white opacity-0 shadow-lg transition-opacity duration-300 group-hover:opacity-100">
           Need help navigating?
-          <div className="absolute top-full right-4 border-4 border-transparent border-t-gray-900"></div>
-        </div>
-
-        {/* Notification Badge (optional - can be removed if not needed) */}
-        <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-          <span className="text-xs text-white font-bold">!</span>
+          <div className="absolute top-full right-4 border-4 border-transparent border-t-gray-900" />
         </div>
       </button>
     </div>

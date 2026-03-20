@@ -1,13 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/database';
 import SearchAnalytics from '@/models/SearchAnalytics';
+import { getLibrarianAuth } from '@/lib/getLibrarianAuth';
+import {
+  isMongoUriMissing,
+  MONGO_URI_MISSING_MESSAGE,
+  mongoConnectFailedBody,
+  isMongoConfigErrorMessage,
+  isMongoConnectivityFailure,
+} from '@/lib/mongoEnv';
 
 // Add this line to fix the dynamic server usage error
 export const dynamic = 'force-dynamic';
 
 // GET - Get search analytics (for librarians)
 export async function GET(request: NextRequest) {
+  const auth = getLibrarianAuth(request);
+  if (!auth.ok) return auth.response;
+
   try {
+    if (isMongoUriMissing()) {
+      return NextResponse.json({ error: MONGO_URI_MISSING_MESSAGE }, { status: 503 });
+    }
+
     await connectDB();
     
     const { searchParams } = new URL(request.url);
@@ -76,9 +91,14 @@ export async function GET(request: NextRequest) {
     
   } catch (error) {
     console.error('Analytics API Error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch analytics' },
-      { status: 500 }
-    );
+
+    if (error instanceof Error && isMongoConfigErrorMessage(error.message)) {
+      return NextResponse.json({ error: MONGO_URI_MISSING_MESSAGE }, { status: 503 });
+    }
+    if (isMongoConnectivityFailure(error)) {
+      return NextResponse.json({ error: mongoConnectFailedBody(error) }, { status: 503 });
+    }
+
+    return NextResponse.json({ error: 'Failed to fetch analytics' }, { status: 500 });
   }
 }

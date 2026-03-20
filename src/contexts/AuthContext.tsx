@@ -1,6 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { parseApiErrorMessage } from '@/lib/httpErrorMessage';
 
 interface User {
   id: string;
@@ -12,113 +13,111 @@ interface User {
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<User>;
-  register: (email: string, password: string, name: string, role?: string) => Promise<void>;
-  logout: () => void;
+  register: (email: string, password: string, name: string) => Promise<void>;
+  logout: () => Promise<void>;
   isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Export AuthProvider as a named export
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    checkAuthStatus();
+  const clearSessionCookie = useCallback(async () => {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
   }, []);
 
-  const checkAuthStatus = async () => {
+  const checkAuthStatus = useCallback(async () => {
     try {
-      // Check if localStorage is available (client-side only)
-      if (typeof window !== 'undefined') {
-        const savedUser = localStorage.getItem('librarian_user');
-        if (savedUser) {
-          const user = JSON.parse(savedUser);
-          // Verify it's the correct admin user
-          if (user.email === 'admin@academic.com' && user.role === 'librarian') {
-            setUser(user);
-            return;
-          }
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!res.ok) {
+        if ([401, 403, 404].includes(res.status)) {
+          await clearSessionCookie();
         }
+        setUser(null);
+        return;
       }
-      setUser(null);
+      const data = await res.json();
+      const u = data.user;
+      if (!u || u.role !== 'librarian') {
+        await clearSessionCookie();
+        setUser(null);
+        return;
+      }
+      setUser({
+        id: String(u.id),
+        email: u.email,
+        name: u.name,
+        role: 'librarian',
+      });
     } catch (error) {
       console.error('Auth check failed:', error);
       setUser(null);
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [clearSessionCookie]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setIsLoading(true);
+      await checkAuthStatus();
+      if (!cancelled) setIsLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [checkAuthStatus]);
 
   const login = async (email: string, password: string): Promise<User> => {
     setIsLoading(true);
     try {
-      if (!email || !password) {
-        throw new Error('Email and password are required');
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) {
+        throw new Error(await parseApiErrorMessage(res));
       }
-      
-      // Only allow specific admin credentials
-      if (email === 'admin@academic.com' && password === 'admin123') {
-        const user = {
-          id: 'admin-user-id',
-          email: email,
-          name: 'Admin Librarian',
-          role: 'librarian' as const,
-        };
-        
-        // Save user to localStorage for persistence (client-side only)
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('librarian_user', JSON.stringify(user));
-        }
-        
-        setUser(user);
-        return user;
-      } else {
-        throw new Error('Invalid credentials. Only authorized librarians can access this system.');
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
+      const data = await res.json();
+      const u = data.user;
+      const nextUser: User = {
+        id: String(u.id),
+        email: u.email,
+        name: u.name,
+        role: u.role,
+      };
+      setUser(nextUser);
+      return nextUser;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const register = async (email: string, password: string, name: string, role?: string) => {
+  const register = async (email: string, password: string, name: string) => {
     setIsLoading(true);
     try {
-      // Mock registration for demo
-      const mockUser = {
-        id: 'demo-user-id',
-        email: email,
-        name: name,
-        role: (role as 'librarian') || 'librarian',
-      };
-      setUser(mockUser);
-    } catch (error) {
-      console.error('Registration error:', error);
-      throw error;
+      const res = await fetch('/api/auth/librarian/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password, name }),
+      });
+      if (!res.ok) {
+        throw new Error(await parseApiErrorMessage(res));
+      }
+      // Account exists but is not signed in until they use /librarian/login.
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
   };
 
   const logout = async () => {
-    try {
-      // Clear the user from state
-      setUser(null);
-      
-      // Clear stored user data (client-side only)
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('librarian_user');
-      }
-      
-      return true; // Indicate successful logout
-    } catch (error) {
-      console.error('Logout error:', error);
-      return false; // Indicate logout failure
-    }
+    setUser(null);
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
   };
 
   return (

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import PasswordInputWithToggle from '@/components/shared/PasswordInputWithToggle';
 
 export default function LibrarianLogin() {
   const router = useRouter();
@@ -13,8 +14,14 @@ export default function LibrarianLogin() {
     password: '',
   });
   const [error, setError] = useState('');
+  const [showRegisteredNotice, setShowRegisteredNotice] = useState(false);
 
-  // Check if already logged in
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    setShowRegisteredNotice(params.get('registered') === '1');
+  }, []);
+
   useEffect(() => {
     if (user) {
       router.push('/librarian/dashboard');
@@ -26,21 +33,17 @@ export default function LibrarianLogin() {
     setError('');
 
     try {
-      // Only proceed with valid credentials
       if (!formData.email || !formData.password) {
-        throw new Error('Please enter both email and password');
+        setError('Please enter both email and password');
+        return;
       }
-      
-      // Only allow specific admin credentials
-      if (formData.email === 'admin@academic.com' && formData.password === 'admin123') {
-        await login(formData.email, formData.password);
-        router.push('/librarian/dashboard');
-      } else {
-        throw new Error('Invalid credentials. Only authorized librarians can access this system.');
-      }
+      await login(formData.email, formData.password);
+      router.push('/librarian/dashboard');
     } catch (error) {
       console.error('Login error:', error);
-      setError('Login failed. Please check your credentials and try again.');
+      setError(
+        error instanceof Error ? error.message : 'Login failed. Please try again.'
+      );
     }
   };
 
@@ -60,23 +63,32 @@ export default function LibrarianLogin() {
           </Link>
           <h2 className="mt-4 text-2xl font-bold text-gray-900">Librarian Login</h2>
           <p className="mt-2 text-gray-600">Access the library management system</p>
-          
+
           {isLoading && (
             <div className="mt-4 flex justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-academic-blue"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-academic-blue" />
             </div>
           )}
         </div>
 
+        {showRegisteredNotice && (
+          <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-800 rounded text-sm">
+            Account created. Sign in with your email and password to continue.
+          </div>
+        )}
+
         {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded whitespace-pre-line text-sm">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Email Address
             </label>
             <input
@@ -92,18 +104,20 @@ export default function LibrarianLogin() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Password
             </label>
-            <input
-              type="password"
+            <PasswordInputWithToggle
               id="password"
               name="password"
               required
               value={formData.password}
               onChange={handleChange}
-              className="input-field"
               placeholder="Enter your password"
+              autoComplete="current-password"
             />
           </div>
 
@@ -116,9 +130,18 @@ export default function LibrarianLogin() {
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <Link 
-            href="/" 
+        <div className="mt-6 text-center space-y-2">
+          <p className="text-gray-600">
+            No account yet?{' '}
+            <Link
+              href="/librarian/register"
+              className="text-academic-blue hover:text-blue-700 font-medium"
+            >
+              Create librarian account
+            </Link>
+          </p>
+          <Link
+            href="/"
             className="inline-block mt-2 text-academic-blue hover:text-blue-700 font-medium"
           >
             ← Back to Home
