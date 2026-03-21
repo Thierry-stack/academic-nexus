@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/database';
 import Book from '@/models/Book';
 import SearchAnalytics from '@/models/SearchAnalytics';
+import { escapeRegex } from '@/lib/escapeRegex';
 import { getLibrarianAuth } from '@/lib/getLibrarianAuth';
 import {
   isMongoUriMissing,
@@ -18,43 +19,60 @@ export async function GET(request: NextRequest) {
     
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q') || '';
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    
-    // Log search for analytics (only if there's a query)
-    if (query.trim()) {
-      await SearchAnalytics.create({
-        query: query.trim(),
-        resultsCount: 0, // We'll update this after we get results
-        userAgent: request.headers.get('user-agent') || undefined,
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '10', 10);
+    const trimmedQuery = query.trim();
+    const metaOnly = searchParams.get('meta') === '1';
+
+    // Build search filter (escape regex so special characters in q are safe)
+    const filter = trimmedQuery
+      ? {
+          $or: [
+            { title: { $regex: escapeRegex(trimmedQuery), $options: 'i' } },
+            { author: { $regex: escapeRegex(trimmedQuery), $options: 'i' } },
+            { isbn: { $regex: escapeRegex(trimmedQuery), $options: 'i' } },
+            { description: { $regex: escapeRegex(trimmedQuery), $options: 'i' } },
+          ],
+        }
+      : {};
+
+    const total = await Book.countDocuments(filter);
+
+    // Lightweight path for student UI: log search + total matches without returning rows
+    if (metaOnly) {
+      if (trimmedQuery) {
+        await SearchAnalytics.create({
+          query: trimmedQuery,
+          resultsCount: total,
+          userAgent: request.headers.get('user-agent') || undefined,
+        });
+      }
+      return NextResponse.json({
+        books: [],
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit) || 0,
+        },
+        logged: Boolean(trimmedQuery),
       });
     }
-    
-    // Build search filter
-    const filter = query ? {
-      $or: [
-        { title: { $regex: query, $options: 'i' } },
-        { author: { $regex: query, $options: 'i' } },
-        { isbn: { $regex: query, $options: 'i' } },
-        { description: { $regex: query, $options: 'i' } },
-      ]
-    } : {};
-    
+
     const books = await Book.find(filter)
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip((page - 1) * limit);
-    
-    const total = await Book.countDocuments(filter);
-    
-    // Update analytics with actual results count
-    if (query.trim()) {
-      await SearchAnalytics.findOneAndUpdate(
-        { query: query.trim() },
-        { resultsCount: books.length }
-      );
+
+    // Log when the API is used as the catalog search (e.g. ?q= with full response)
+    if (trimmedQuery) {
+      await SearchAnalytics.create({
+        query: trimmedQuery,
+        resultsCount: total,
+        userAgent: request.headers.get('user-agent') || undefined,
+      });
     }
-    
+
     return NextResponse.json({
       books,
       pagination: {
@@ -62,7 +80,7 @@ export async function GET(request: NextRequest) {
         limit,
         total,
         pages: Math.ceil(total / limit),
-      }
+      },
     });
     
   } catch (error) {

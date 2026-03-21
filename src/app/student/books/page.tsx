@@ -38,6 +38,16 @@ export default function BooksPage() {
     filterAndSortBooks();
   }, [books, searchQuery, sortBy]);
 
+  // Log catalog searches for librarian analytics (debounced; lightweight meta=1 request)
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (!q) return;
+    const t = setTimeout(() => {
+      fetch(`/api/books?q=${encodeURIComponent(q)}&meta=1`).catch(() => {});
+    }, 450);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
+
   const fetchBooks = async () => {
     try {
       const response = await fetch('/api/books');
